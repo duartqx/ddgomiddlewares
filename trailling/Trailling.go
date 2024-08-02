@@ -8,9 +8,7 @@ import (
 func TrailingSlashMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
-			if path, found := strings.CutSuffix(r.URL.Path, "/"); found {
-				r.URL.Path = path
-			}
+			r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
 		}
 		next.ServeHTTP(w, r)
 	})
