@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/duartqx/ddgomiddlewares/logger"
 	l "github.com/duartqx/ddgomiddlewares/logger"
 )
 
