@@ -18,11 +18,13 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(writer, r)
 
 		log.Println(
-			NewRequestLoggerBuilder().
-				SetMethod(r.Method).
-				SetStatus(writer.Status).
-				SetPath(r.URL.Path).
-				SetSince(time.Since(start)),
+			RequestLogger{
+				Method: r.Method,
+				Status: writer.Status,
+				Path:   r.URL.Path,
+				Since:  time.Since(start),
+				Msg:    writer.BodyString(),
+			},
 		)
 	})
 }
