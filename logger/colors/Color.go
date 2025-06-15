@@ -5,21 +5,24 @@ import (
 	"slices"
 )
 
+type Color string
+
 const (
-	Blue    string = "\033[34m"
-	Cyan    string = "\033[36m"
-	Green   string = "\033[32m"
-	Magenta string = "\033[35m"
-	Red     string = "\033[31m"
-	Reset   string = "\033[0m"
-	Yellow  string = "\033[33m"
+	Blue    Color = "\033[34m"
+	Cyan    Color = "\033[36m"
+	Green   Color = "\033[32m"
+	Magenta Color = "\033[35m"
+	Red     Color = "\033[31m"
+	Yellow  Color = "\033[33m"
+
+	Reset Color = "\033[0m"
 )
 
-var clrs []string = []string{Blue, Cyan, Green, Magenta, Red, Yellow}
+var clrs []Color = []Color{Blue, Cyan, Green, Magenta, Red, Yellow}
 
-func ColorIt(color string, value interface{}) (string, error) {
-	if !slices.Contains[[]string](clrs, color) {
-		return Red, fmt.Errorf("Color not recognized!")
+func ColorIt(color Color, value any) (string, error) {
+	if !slices.Contains(clrs, color) {
+		return "", fmt.Errorf("Color not recognized!")
 	}
 	return fmt.Sprintf("%s%v%s", color, value, Reset), nil
 }
