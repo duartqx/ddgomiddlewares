@@ -10,13 +10,6 @@ import (
 
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer, ok := w.(*logger.ResponseRecorderWriter)
-
-		var msg string
-		if ok {
-			msg = writer.BodyString()
-		}
-
 		defer func() {
 			if err := recover(); err != nil {
 
@@ -24,7 +17,6 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 					Method: r.Method,
 					Status: http.StatusInternalServerError,
 					Path:   r.URL.Path,
-					Msg:    msg,
 				}
 
 				log.Println(rl.PanicString(err))

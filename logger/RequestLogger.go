@@ -14,7 +14,6 @@ type RequestLogger struct {
 	Status int
 	Since  time.Duration
 	Path   string
-	Msg    string
 }
 
 func NewRequestLogger() *RequestLogger {
@@ -23,22 +22,20 @@ func NewRequestLogger() *RequestLogger {
 
 func (rl RequestLogger) String() string {
 	return fmt.Sprintf(
-		"| %s | %s | %s | %s | %s",
+		"| %s | %s | %s | %s",
 		rl.padAndColor(7, rl.Method),
 		rl.padAndColor(0, rl.Status),
 		rl.pad(12, rl.Since),
 		rl.Path,
-		rl.getColored(rl.logMsgIfNotOk()),
 	)
 }
 
 func (rl RequestLogger) PanicString(err any) string {
 	return fmt.Sprintf(
-		"| %s | %s |              | %s | %s %s",
+		"| %s | %s |              | %s | %s",
 		rl.padAndColor(7, rl.Method),
 		rl.padAndColor(0, rl.Status),
 		rl.Path,
-		rl.getColored(rl.logMsgIfNotOk()),
 		rl.getColored(err),
 	)
 }
@@ -73,11 +70,4 @@ func (rl RequestLogger) getColored(value any) string {
 		colored, _ = colors.ColorIt(colors.Red, value)
 	}
 	return colored
-}
-
-func (rl RequestLogger) logMsgIfNotOk() string {
-	if rl.Status > 399 {
-		return rl.Msg
-	}
-	return ""
 }
