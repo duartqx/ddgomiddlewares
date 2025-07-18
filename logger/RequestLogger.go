@@ -1,8 +1,11 @@
 package logger
 
 import (
+	"cmp"
 	"fmt"
 	"math"
+	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -11,6 +14,7 @@ import (
 
 type RequestLogger struct {
 	Method string
+	Result any
 	Status int
 	Since  time.Duration
 	Path   string
@@ -21,22 +25,32 @@ func NewRequestLogger() *RequestLogger {
 }
 
 func (rl RequestLogger) String() string {
+	if slices.Contains([]int{http.StatusInternalServerError, http.StatusBadRequest}, rl.Status) {
+		return fmt.Sprintf(
+			"| %s | %s | %s | %s | %v",
+			rl.padAndColor(7, rl.Method),
+			rl.padAndColor(0, rl.Status),
+			rl.pad(12, rl.Since),
+			rl.Path,
+			rl.getColored(rl.Result),
+		)
+	}
 	return fmt.Sprintf(
-		"| %s | %s | %s | %s",
+		"| %s | %s |             | %s",
 		rl.padAndColor(7, rl.Method),
 		rl.padAndColor(0, rl.Status),
-		rl.pad(12, rl.Since),
 		rl.Path,
 	)
 }
 
 func (rl RequestLogger) PanicString(err any) string {
 	return fmt.Sprintf(
-		"| %s | %s |              | %s | %s",
+		"| %s | %s | %s | %s | %v",
 		rl.padAndColor(7, rl.Method),
 		rl.padAndColor(0, rl.Status),
+		rl.pad(12, rl.Since),
 		rl.Path,
-		rl.getColored(err),
+		rl.getColored(cmp.Or(err, rl.Result)),
 	)
 }
 

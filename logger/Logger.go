@@ -20,6 +20,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 		log.Println(
 			RequestLogger{
 				Method: r.Method,
+				Result: writer.Result,
 				Status: writer.Status,
 				Path:   r.URL.Path,
 				Since:  time.Since(start),
