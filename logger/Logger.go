@@ -18,7 +18,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 		}
 
 		defer func() {
-			if err := recover(); err != nil {
+			if rec := recover(); rec != nil {
 				rl := RequestLogger{
 					Method: r.Method,
 					Status: http.StatusInternalServerError,
@@ -26,25 +26,26 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 					Since:  time.Since(start),
 				}
 
-				result := fmt.Sprintf(`{"error":"%v"}`, err)
+				result := fmt.Sprintf(`{"error":"%v"}`, rec)
 
 				log.Println(rl.PanicString(result))
 
-				w.WriteHeader(rl.Status)
-				w.Write([]byte(result))
-			} else {
+				writer.WriteHeader(rl.Status)
+				writer.Write([]byte(result))
 
-				log.Println(
-					RequestLogger{
-						Method: r.Method,
-						Result: writer.Result,
-						Status: writer.Status,
-						Path:   r.URL.Path,
-						Since:  time.Since(start),
-					},
-				)
-
+				return
 			}
+
+			log.Println(
+				RequestLogger{
+					Method: r.Method,
+					Result: writer.Result,
+					Status: writer.Status,
+					Path:   r.URL.Path,
+					Since:  time.Since(start),
+				},
+			)
+
 		}()
 
 		next.ServeHTTP(writer, r)
