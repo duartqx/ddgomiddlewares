@@ -8,7 +8,7 @@ import (
 	i "github.com/duartqx/ddgomiddlewares/interfaces"
 )
 
-func TimeoutMiddleware(timeout time.Duration, err error) i.Middleware {
+func TimeoutMiddleware(timeout time.Duration, reject func(w http.ResponseWriter)) i.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -32,8 +32,7 @@ func TimeoutMiddleware(timeout time.Duration, err error) i.Middleware {
 
 			select {
 			case <-ctx.Done():
-				w.WriteHeader(http.StatusGatewayTimeout)
-				panic(err)
+				reject(w)
 			case p := <-panicChan:
 				panic(p)
 			case <-done:
