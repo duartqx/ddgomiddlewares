@@ -87,7 +87,7 @@ func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middlewa
 			writer.Header().Add(X_REQUEST_ID, writer.Id.String())
 
 			defer func() {
-				rl := NewRequestSLogger(writer.Id).WithMethod(r.Method).WithPath(r.URL.Path)
+				rl := NewRequestSLogger(writer.Id).WithMethod(r.Method).WithPath(r.URL.Path).WithHost(r.URL.Host)
 
 				if rec := recover(); rec != nil {
 
