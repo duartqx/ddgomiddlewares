@@ -3,9 +3,12 @@ package logger
 import (
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type RequestSLogger struct {
+	id     uuid.UUID
 	method string
 	result any
 	status int
@@ -13,8 +16,8 @@ type RequestSLogger struct {
 	path   string
 }
 
-func NewRequestSLogger() *RequestSLogger {
-	return &RequestSLogger{}
+func NewRequestSLogger(id uuid.UUID) *RequestSLogger {
+	return &RequestSLogger{id: id}
 }
 
 func (rl RequestSLogger) WithMethod(method string) RequestSLogger {
@@ -45,6 +48,7 @@ func (rl RequestSLogger) WithPath(path string) RequestSLogger {
 func (rl RequestSLogger) Slog() []any {
 	if rl.status >= http.StatusBadRequest {
 		return []any{
+			"id", rl.id,
 			"method", rl.method,
 			"status", rl.status,
 			"since", rl.since.String(),
@@ -53,6 +57,7 @@ func (rl RequestSLogger) Slog() []any {
 		}
 	}
 	return []any{
+		"id", rl.id,
 		"method", rl.method,
 		"status", rl.status,
 		"since", rl.since.String(),

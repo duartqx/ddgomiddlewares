@@ -70,7 +70,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func SLoggerMiddleware(slogger *slog.Logger) interfaces.Middleware {
+func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -87,14 +87,14 @@ func SLoggerMiddleware(slogger *slog.Logger) interfaces.Middleware {
 			writer.Header().Add(X_REQUEST_ID, writer.Id.String())
 
 			defer func() {
-				rl := NewRequestSLogger().WithMethod(r.Method).WithPath(r.URL.Path)
+				rl := NewRequestSLogger(writer.Id).WithMethod(r.Method).WithPath(r.URL.Path)
 
 				if rec := recover(); rec != nil {
 
 					result := fmt.Sprintf(`{"error":"%v"}`, rec)
 
 					slogger.Error(
-						writer.Id.String(),
+						service,
 						rl.
 							WithSince(time.Since(start)).
 							WithResult(result).
@@ -115,7 +115,7 @@ func SLoggerMiddleware(slogger *slog.Logger) interfaces.Middleware {
 				}
 
 				slogger.Info(
-					writer.Id.String(),
+					service,
 					rl.
 						WithSince(time.Since(start)).
 						WithResult(writer.Result).
