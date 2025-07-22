@@ -2,10 +2,13 @@ package logger
 
 import (
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type ResponseRecorderWriter struct {
 	http.ResponseWriter
+	Id           uuid.UUID
 	Status       int
 	WroteHeaders bool
 	Written      *struct {

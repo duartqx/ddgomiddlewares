@@ -70,18 +70,5 @@ func (rl RequestLogger) padAndColor(padding int, value any) string {
 }
 
 func (rl RequestLogger) getColored(value any) string {
-	var colored string
-	switch {
-	case rl.Status >= 100 && rl.Status < 200:
-		colored, _ = colors.ColorIt(colors.Cyan, value)
-	case rl.Status >= 200 && rl.Status < 300:
-		colored, _ = colors.ColorIt(colors.Green, value)
-	case rl.Status >= 300 && rl.Status < 400:
-		colored, _ = colors.ColorIt(colors.Magenta, value)
-	case rl.Status >= 400 && rl.Status < 500:
-		colored, _ = colors.ColorIt(colors.Yellow, value)
-	default:
-		colored, _ = colors.ColorIt(colors.Red, value)
-	}
-	return colored
+	return colors.GetStatusColor(rl.Status, value)
 }

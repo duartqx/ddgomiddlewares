@@ -26,3 +26,20 @@ func ColorIt(color Color, value any) (string, error) {
 	}
 	return fmt.Sprintf("%s%v%s", color, value, Reset), nil
 }
+
+func GetStatusColor(status int, value any) string {
+	var colored string
+	switch {
+	case status >= 100 && status < 200:
+		colored, _ = ColorIt(Cyan, value)
+	case status >= 200 && status < 300:
+		colored, _ = ColorIt(Green, value)
+	case status >= 300 && status < 400:
+		colored, _ = ColorIt(Magenta, value)
+	case status >= 400 && status < 500:
+		colored, _ = ColorIt(Yellow, value)
+	default:
+		colored, _ = ColorIt(Red, value)
+	}
+	return colored
+}
