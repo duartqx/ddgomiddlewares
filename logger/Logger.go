@@ -108,6 +108,7 @@ func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middlewa
 							Slog()...,
 					)
 
+					writer.Header().Set("Content-Type", "application/json")
 					writer.WriteHeader(rl.status)
 					writer.Write([]byte(result))
 
