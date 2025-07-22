@@ -3,8 +3,6 @@ package logger
 import (
 	"net/http"
 	"time"
-
-	"github.com/duartqx/ddgomiddlewares/logger/colors"
 )
 
 type RequestSLogger struct {
@@ -47,21 +45,17 @@ func (rl RequestSLogger) WithPath(path string) RequestSLogger {
 func (rl RequestSLogger) Slog() []any {
 	if rl.status >= http.StatusBadRequest {
 		return []any{
-			"Method", rl.getColored(rl.method),
-			"Status", rl.getColored(rl.status),
-			"Since", rl.since.String(),
-			"Path", rl.path,
-			"Error", rl.getColored(rl.result),
+			"method", rl.method,
+			"status", rl.status,
+			"since", rl.since.String(),
+			"path", rl.path,
+			"error", rl.result,
 		}
 	}
 	return []any{
-		"Method", rl.getColored(rl.method),
-		"Status", rl.getColored(rl.status),
-		"Since", rl.since.String(),
-		"Path", rl.path,
+		"method", rl.method,
+		"status", rl.status,
+		"since", rl.since.String(),
+		"path", rl.path,
 	}
-}
-
-func (rl RequestSLogger) getColored(value any) string {
-	return colors.GetStatusColor(rl.status, value)
 }
