@@ -108,12 +108,14 @@ func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middlewa
 							Slog()...,
 					)
 
+					log.Println("WRITEHEADER LOGGER COM STATUS", rl.status)
 					writer.WriteHeader(rl.status)
 					writer.Write([]byte(result))
 
 					return
 				}
 
+				log.Println("WRITEHEADER LOGGER COM STATUS", writer.Status)
 				slogger.Info(
 					service,
 					rl.
