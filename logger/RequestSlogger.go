@@ -13,6 +13,7 @@ type RequestSLogger struct {
 	result any
 	status int
 	since  time.Duration
+	host   string
 	path   string
 }
 
@@ -45,22 +46,29 @@ func (rl RequestSLogger) WithPath(path string) RequestSLogger {
 	return rl
 }
 
+func (rl RequestSLogger) WithHost(host string) RequestSLogger {
+	rl.host = host
+	return rl
+}
+
 func (rl RequestSLogger) Slog() []any {
 	if rl.status >= http.StatusBadRequest {
 		return []any{
-			"id", rl.id,
+			"x-request-id", rl.id.String(),
 			"method", rl.method,
 			"status", rl.status,
 			"since", rl.since.String(),
+			"host", rl.host,
 			"path", rl.path,
 			"error", rl.result,
 		}
 	}
 	return []any{
-		"id", rl.id,
+		"x-request-id", rl.id.String(),
 		"method", rl.method,
 		"status", rl.status,
 		"since", rl.since.String(),
+		"host", rl.host,
 		"path", rl.path,
 	}
 }
