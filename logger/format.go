@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/duartqx/ddgomiddlewares/logger/colors"
 )
@@ -11,7 +12,7 @@ import (
 func Pad(padding int, value any) string {
 	var (
 		v string = fmt.Sprint(value)
-		r int    = int(math.Max(float64(padding-len(v)), 0))
+		r int    = int(math.Max(float64(padding-utf8.RuneCountInString(v)), 0))
 	)
 	return v + strings.Repeat(" ", r)
 }
