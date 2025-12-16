@@ -87,25 +87,30 @@ func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middlewa
 			writer.Header().Add(X_REQUEST_ID, writer.Id.String())
 
 			defer func() {
-				rl := NewRequestSLogger(writer.Id).WithMethod(r.Method).WithPath(r.URL.Path).WithHost(r.URL.Host)
+				rl := NewRequestSLogger(writer.Id).
+					WithService(service).
+					WithMethod(r.Method).
+					WithPath(r.URL.Path).
+					WithHost(r.URL.Host)
 
 				if rec := recover(); rec != nil {
 
 					result := fmt.Sprintf(`{"error":"%v"}`, rec)
 
+					rl = rl.
+						WithSince(time.Since(start)).
+						WithResult(result).
+						WithStatus(
+							ternary(
+								writer.Status > http.StatusInternalServerError,
+								writer.Status,
+								http.StatusInternalServerError,
+							),
+						)
+
 					slogger.Error(
-						service,
-						rl.
-							WithSince(time.Since(start)).
-							WithResult(result).
-							WithStatus(
-								ternary(
-									writer.Status > http.StatusInternalServerError,
-									writer.Status,
-									http.StatusInternalServerError,
-								),
-							).
-							Slog()...,
+						rl.String(),
+						rl.Slog()...,
 					)
 
 					writer.Header().Set("Content-Type", "application/json")
@@ -115,13 +120,14 @@ func SLoggerMiddleware(service string, slogger *slog.Logger) interfaces.Middlewa
 					return
 				}
 
+				rl = rl.
+					WithSince(time.Since(start)).
+					WithResult(writer.Result).
+					WithStatus(writer.Status)
+
 				slogger.Info(
-					service,
-					rl.
-						WithSince(time.Since(start)).
-						WithResult(writer.Result).
-						WithStatus(writer.Status).
-						Slog()...,
+					rl.String(),
+					rl.Slog()...,
 				)
 
 			}()

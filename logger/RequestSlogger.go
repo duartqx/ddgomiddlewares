@@ -1,24 +1,32 @@
 package logger
 
 import (
+	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type RequestSLogger struct {
-	id     uuid.UUID
-	method string
-	result any
-	status int
-	since  time.Duration
-	host   string
-	path   string
+	id      uuid.UUID
+	method  string
+	result  any
+	status  int
+	since   time.Duration
+	host    string
+	path    string
+	service string
 }
 
 func NewRequestSLogger(id uuid.UUID) *RequestSLogger {
 	return &RequestSLogger{id: id}
+}
+
+func (rl *RequestSLogger) WithService(service string) *RequestSLogger {
+	rl.service = service
+	return rl
 }
 
 func (rl *RequestSLogger) WithMethod(method string) *RequestSLogger {
@@ -55,6 +63,7 @@ func (rl RequestSLogger) Slog() []any {
 	if rl.status >= http.StatusBadRequest {
 		return []any{
 			"x-request-id", rl.id.String(),
+			"service", rl.service,
 			"method", rl.method,
 			"status", rl.status,
 			"since", rl.since.String(),
@@ -65,10 +74,35 @@ func (rl RequestSLogger) Slog() []any {
 	}
 	return []any{
 		"x-request-id", rl.id.String(),
+		"service", rl.service,
 		"method", rl.method,
 		"status", rl.status,
 		"since", rl.since.String(),
 		"host", rl.host,
 		"path", rl.path,
 	}
+}
+
+func (rl RequestSLogger) String() string {
+	if slices.Contains([]int{http.StatusInternalServerError, http.StatusBadRequest}, rl.status) {
+		return fmt.Sprintf(
+			"%s | %s | %s | %s | %s | %s | %v",
+			PadAndColorByStatus(rl.status, 7, rl.service),
+			rl.id.String(),
+			Pad(18, rl.since),
+			PadAndColorByStatus(rl.status, 7, rl.method),
+			Pad(12, rl.path),
+			PadAndColorByStatus(rl.status, 0, rl.status),
+			ColorByStatus(rl.status, rl.result),
+		)
+	}
+	return fmt.Sprintf(
+		"%s | %s | %s | %s | %s | %s",
+		PadAndColorByStatus(rl.status, 7, rl.service),
+		rl.id.String(),
+		Pad(18, rl.since),
+		PadAndColorByStatus(rl.status, 7, rl.method),
+		Pad(12, rl.path),
+		PadAndColorByStatus(rl.status, 0, rl.status),
+	)
 }
