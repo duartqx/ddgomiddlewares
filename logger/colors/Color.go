@@ -2,10 +2,17 @@ package colors
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 )
 
 type Color string
+
+var bleacher = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+func Bleach(value string) string {
+	return bleacher.ReplaceAllString(value, "")
+}
 
 const (
 	Blue    Color = "\033[34m"
